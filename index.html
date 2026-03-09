@@ -1,504 +1,585 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>色彩炼金术士 iOS稳定版</title>
-<style>
-:root{
-  --bg-color:#1e1f26; --card-bg:#2b2d38; --text-main:#ecf0f1; --text-sub:#95a5a6;
-  --accent:#6c5ce7; --success:#2ecc71; --error:#e74c3c; --warning:#f1c40f;
-}
-*{box-sizing:border-box}
-html,body{
-  margin:0; padding:0; min-height:100%; background:var(--bg-color); color:var(--text-main);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
-}
-body{display:flex; justify-content:center; align-items:center; overscroll-behavior:none;}
-.game-container{
-  width:100%; max-width:600px; min-height:100vh; max-height:100vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  background:var(--card-bg); padding:40px 20px 20px; display:flex; flex-direction:column; justify-content:center;
-}
-h1{margin:0 0 5px 0; font-size:1.6rem; color:#fff; text-align:center;}
-.subtitle{color:var(--text-sub); font-size:.9rem; margin-bottom:25px; text-align:center; line-height:1.6;}
-.highlight{color:#fdcb6e; font-weight:bold;}
-.level{display:none; animation:fadeIn .4s ease; width:100%;}
-.level.active{display:block;}
-@keyframes fadeIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>色彩炼金术士 - 终极完整版</title>
+    <style>
+        :root {
+            --bg-color: #1e1f26; --card-bg: #2b2d38; --text-main: #ecf0f1; --text-sub: #95a5a6;
+            --accent: #6c5ce7; --success: #2ecc71; --error: #e74c3c; --warning: #f1c40f;
+        }
 
-#startScreen{
-  position:fixed; inset:0; background:var(--bg-color); z-index:999;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-}
-.start-btn{
-  background:linear-gradient(135deg,#6c5ce7,#a29bfe); border:none; padding:15px 50px; color:#fff;
-  border-radius:30px; font-size:1.2rem; font-weight:bold; box-shadow:0 10px 20px rgba(108,92,231,.4);
-  animation:pulse 1.5s infinite; touch-action:manipulation; cursor:pointer;
-}
-@keyframes pulse{0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)}}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-main);
+            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; overscroll-behavior: none; overflow: hidden;
+        }
 
-.flask-container{display:flex; justify-content:center; gap:20px; margin-bottom:30px;}
-.flask{
-  width:70px; height:70px; border-radius:50%; position:relative; border:3px solid rgba(255,255,255,.2);
-  box-shadow:0 5px 15px rgba(0,0,0,.3); touch-action:manipulation; cursor:pointer;
-}
-.flask:active{transform:scale(.9)}
-.flask::after{
-  content:''; position:absolute; top:10%; left:20%; width:25%; height:25%;
-  background:rgba(255,255,255,.5); border-radius:50%; filter:blur(2px);
-}
-.flask.red{background:radial-gradient(circle at 30% 30%,#ff7675,#d63031)}
-.flask.yellow{background:radial-gradient(circle at 30% 30%,#ffeaa7,#fdcb6e)}
-.flask.blue{background:radial-gradient(circle at 30% 30%,#74b9ff,#0984e3)}
+        .game-container {
+            width: 100%; max-width: 600px; height: 100vh; max-height: 850px;
+            background-color: var(--card-bg); padding: 40px 20px 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: flex-start; position: relative; z-index: 1;
+        }
 
-.cauldron{
-  width:120px; height:120px; margin:0 auto 30px; border-radius:50%; background:#111; border:5px solid #444;
-  display:flex; justify-content:center; align-items:center; font-size:1.1rem; color:#666; font-weight:bold;
-  transition:all .3s ease; box-shadow:inset 0 10px 20px rgba(0,0,0,.8); text-align:center; padding:10px;
-}
-.shake{animation:shake .4s ease-in-out}
-@keyframes shake{0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px) rotate(-5deg)} 75%{transform:translateX(10px) rotate(5deg)}}
-.bounce{animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
-@keyframes bounce{0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)}}
+        h1 { margin: 0 0 5px 0; font-size: 1.6rem; color: #fff; text-align: center; }
+        .subtitle { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; text-align: center; }
+        .highlight { color: #fdcb6e; font-weight: bold; }
 
-.compare-container{display:flex; justify-content:center; gap:30px; margin-bottom:25px;}
-.color-box{
-  width:100px; height:100px; border-radius:20px;
-  box-shadow:inset 0 0 20px rgba(0,0,0,.2),0 10px 20px rgba(0,0,0,.3); border:3px solid rgba(255,255,255,.1);
-}
-.slider-group{margin-bottom:20px; text-align:left; padding:0 10px;}
-.slider-label{display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:10px; font-weight:500; gap:8px;}
-.status-badge{
-  padding:2px 10px; border-radius:12px; font-size:.75rem; font-weight:bold; background:#444; transition:all .3s; white-space:nowrap;
-}
-input[type=range]{
-  -webkit-appearance:none; appearance:none; width:100%; height:12px; border-radius:6px; background:#444;
-  outline:none; margin-bottom:8px; touch-action:none;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none; appearance:none; width:28px; height:28px; border-radius:50%; background:#fff;
-  border:2px solid #ddd; box-shadow:0 2px 10px rgba(0,0,0,.5);
-}
-.feedback-bar-bg{height:6px; background:#111; border-radius:3px; overflow:hidden;}
-.feedback-fill{height:100%; width:0%; transition:width .2s, background-color .3s; border-radius:3px;}
+        .level { display: none; animation: fadeIn 0.4s ease; width: 100%; flex: 1; flex-direction: column; }
+        .level.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.l3-base{
-  width:130px; height:130px; border-radius:50%; margin:0 auto 20px; border:5px solid #fff; position:relative;
-}
-.l3-base::after{
-  content:'主角'; position:absolute; top:-10px; right:-10px; background:var(--accent); padding:4px 10px;
-  border-radius:15px; font-size:.8rem; font-weight:bold;
-}
-.options-grid{display:flex; justify-content:center; gap:15px; margin-top:20px; flex-wrap:wrap; padding:0 20px;}
-.option-btn{
-  width:70px; height:70px; border-radius:15px; border:3px solid rgba(255,255,255,.2); touch-action:manipulation; cursor:pointer;
-}
-.option-btn:active{transform:scale(.9)}
-.btn-reset{
-  background:#444; border:none; padding:12px 0; width:80%; margin:10px auto 0; display:block; color:#fff;
-  border-radius:25px; font-size:1rem; font-weight:bold; touch-action:manipulation; cursor:pointer;
-}
-.overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,.9); display:flex; flex-direction:column; justify-content:center; align-items:center;
-  z-index:99; opacity:0; pointer-events:none; transition:opacity .3s ease; padding:20px;
-}
-.overlay.show{opacity:1; pointer-events:all}
-.overlay-icon{font-size:5rem; margin-bottom:10px;}
-.overlay-title{font-size:2.2rem; color:var(--success); font-weight:bold; margin-bottom:10px; text-align:center;}
-.overlay-btn{
-  background:var(--success); border:none; padding:15px 40px; color:#000; border-radius:30px; font-size:1.2rem;
-  font-weight:bold; margin-top:20px; cursor:pointer; touch-action:manipulation;
-}
-.victory-bg{background:radial-gradient(circle,#2c3e50,#000)}
-.victory-title{color:#f1c40f}
-@media (max-width:480px){
-  .game-container{padding:30px 14px 20px}
-  .compare-container{gap:16px}
-  .color-box{width:88px; height:88px}
-  .flask-container{gap:14px}
-}
-</style>
+        /* --- 启动屏 --- */
+        #startScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .start-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe); border: none; padding: 15px 50px;
+            color: white; border-radius: 30px; font-size: 1.2rem; font-weight: bold;
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.4); animation: pulse 1.5s infinite; cursor: pointer;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* --- 通用组件 --- */
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-5deg); } 75% { transform: translateX(10px) rotate(5deg); } }
+        .bounce { animation: bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes bounce { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .btn-reset { background: #444; border: none; padding: 12px 0; width: 80%; margin: 20px auto 0; display: block; color: white; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer;}
+        .info-box { background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 10px; font-size: 0.85rem; line-height: 1.5; margin-bottom: 15px; border-left: 4px solid var(--accent); text-align: left; color: #ddd; }
+
+        /* --- Level 1：试管 --- */
+        .flask-container { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; margin-top: 20px;}
+        .flask { width: 70px; height: 70px; border-radius: 50%; position: relative; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.3); touch-action: manipulation; cursor: pointer;}
+        .flask:active { transform: scale(0.9); }
+        .flask::after { content: ''; position: absolute; top: 10%; left: 20%; width: 25%; height: 25%; background: rgba(255,255,255,0.5); border-radius: 50%; filter: blur(2px); }
+        .flask.red { background: radial-gradient(circle at 30% 30%, #ff7675, #d63031); }
+        .flask.yellow { background: radial-gradient(circle at 30% 30%, #ffeaa7, #fdcb6e); }
+        .flask.blue { background: radial-gradient(circle at 30% 30%, #74b9ff, #0984e3); }
+        .cauldron { width: 120px; height: 120px; margin: 20px auto 30px; border-radius: 50%; background: #111; border: 5px solid #444; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; color: #666; font-weight: bold; transition: all 0.3s ease; box-shadow: inset 0 10px 20px rgba(0,0,0,0.8); }
+
+        /* --- Level 2：滑块 --- */
+        .compare-container { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; margin-top: 20px;}
+        .color-box { width: 100px; height: 100px; border-radius: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.1); }
+        .slider-group { margin-bottom: 20px; text-align: left; padding: 0 10px; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 10px; font-weight: 500;}
+        .status-badge { padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; background: #444; transition: all 0.3s;}
+        input[type=range] { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #444; outline: none; margin-bottom: 8px; touch-action: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 2px solid #ddd; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .feedback-bar-bg { height: 6px; background: #111; border-radius: 3px; overflow: hidden; }
+        .feedback-fill { height: 100%; width: 0%; transition: width 0.2s, background-color 0.3s; border-radius: 3px;}
+
+        /* --- Level 3：配色大师 --- */
+        .l3-base { width: 130px; height: 130px; border-radius: 50%; margin: 20px auto; border: 5px solid #fff; position: relative;}
+        .l3-base::after { content: '主角'; position: absolute; top: -10px; right: -10px; background: var(--accent); padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        .options-grid { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; padding: 0 20px;}
+        .option-btn { width: 70px; height: 70px; border-radius: 15px; border: 3px solid rgba(255,255,255,0.2); touch-action: manipulation; cursor: pointer; }
+        .option-btn:active { transform: scale(0.9); }
+
+        /* --- Level 4：色环拼图 (拖拽) --- */
+        .wheel-area { position: relative; width: 280px; height: 280px; margin: 0 auto; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.15); }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #222; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #777; text-align: center; line-height: 1.2; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);}
+        .slot { position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); transform: translate(-50%, -50%); box-sizing: border-box; transition: border-color 0.2s;}
+        .slot.highlight { border-color: white; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%) scale(1.1); }
+        .slot.fixed { border-color: var(--success); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        
+        .palette-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; padding: 15px 10px; background: rgba(0,0,0,0.2); border-radius: 15px; min-height: 110px; align-content: flex-start;}
+        .drag-piece { width: 44px; height: 44px; border-radius: 50%; cursor: grab; touch-action: none; box-shadow: 0 4px 8px rgba(0,0,0,0.5); position: relative; z-index: 10; border: 2px solid rgba(255,255,255,0.5); box-sizing: border-box;}
+        .drag-piece.dragging { opacity: 0.9; transform: scale(1.3); z-index: 100; cursor: grabbing; box-shadow: 0 15px 25px rgba(0,0,0,0.8); }
+        .drag-piece.placed { cursor: default; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.8); pointer-events: none;}
+
+        /* --- 弹窗 --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .overlay.show { opacity: 1; pointer-events: all; }
+        .overlay-icon { font-size: 5rem; margin-bottom: 10px; }
+        .overlay-title { font-size: 2.2rem; color: var(--success); font-weight: bold; margin-bottom: 10px; text-align: center;}
+        .overlay-btn { background: var(--success); border: none; padding: 15px 40px; color: #000; border-radius: 30px; font-size: 1.2rem; font-weight: bold; margin-top: 20px; cursor: pointer;}
+        .victory-bg { background: radial-gradient(circle, #2c3e50, #000); }
+        .victory-title { color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.5);}
+    </style>
 </head>
 <body>
 
+<!-- 启动屏 -->
 <div id="startScreen">
-  <div style="font-size:4rem; margin-bottom:20px;">🎨</div>
-  <h1 style="font-size:2rem; margin-bottom:40px;">色彩炼金术士</h1>
-  <button id="startBtn" class="start-btn" type="button">点击开始游戏</button>
+    <div style="font-size: 4rem; margin-bottom: 20px;">🎨</div>
+    <h1 style="font-size: 2rem; margin-bottom: 40px;">色彩炼金术士</h1>
+    <button class="start-btn" onclick="startGame()">点击开始游戏</button>
 </div>
 
 <div class="game-container">
-  <div id="level1" class="level active">
-    <h1>Level 1: 基础调色盘</h1>
-    <div class="subtitle">三原色混合产生次生色</div>
-    <div class="cauldron" id="cauldron">准备混合</div>
-    <div class="flask-container">
-      <div class="flask red" data-color="red"></div>
-      <div class="flask yellow" data-color="yellow"></div>
-      <div class="flask blue" data-color="blue"></div>
+    
+    <!-- Level 1 -->
+    <div id="level1" class="level active">
+        <h1>Level 1: 基础调色盘</h1>
+        <div class="subtitle">三原色混合产生次生色</div>
+        <div class="cauldron" id="cauldron">准备混合</div>
+        <div class="flask-container">
+            <div class="flask red" onclick="addFlask('red')"></div>
+            <div class="flask yellow" onclick="addFlask('yellow')"></div>
+            <div class="flask blue" onclick="addFlask('blue')"></div>
+        </div>
+        <p id="l1-instruction" style="text-align: center;">任务：请混合出 <span class="highlight" style="font-size:1.2rem">橙色 (Orange)</span></p>
+        <button class="btn-reset" onclick="resetCauldron()">倒掉重来</button>
     </div>
-    <p id="l1-instruction" style="text-align:center;">任务：请混合出 <span class="highlight" style="font-size:1.2rem">橙色 (Orange)</span></p>
-    <button class="btn-reset" id="resetBtn1" type="button">倒掉重来</button>
-  </div>
 
-  <div id="level2" class="level">
-    <h1>Level 2: 色彩雷达</h1>
-    <div class="subtitle">调整滑块，直到三项指标变绿！</div>
-    <div class="compare-container">
-      <div style="text-align:center;"><div id="targetColor" class="color-box"></div><p style="margin-top:8px; color:#aaa; font-size:.8rem">目标</p></div>
-      <div style="text-align:center;"><div id="userColor" class="color-box"></div><p style="margin-top:8px; color:#aaa; font-size:.8rem">你的</p></div>
+    <!-- Level 2 -->
+    <div id="level2" class="level">
+        <h1>Level 2: 色彩雷达</h1>
+        <div class="subtitle">调整滑块，直到三项指标变绿！</div>
+        <div class="compare-container">
+            <div style="text-align: center;"><div id="targetColor" class="color-box"></div><p style="margin-top:8px; color:#aaa; font-size:0.8rem">目标</p></div>
+            <div style="text-align: center;"><div id="userColor" class="color-box"></div><p style="margin-top:8px; color:#aaa; font-size:0.8rem">你的</p></div>
+        </div>
+        <div class="slider-group">
+            <div class="slider-label"><span>🌈 色相</span> <span id="badge-h" class="status-badge">调整中</span></div>
+            <input type="range" id="input-h" min="0" max="360" value="0" style="background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);">
+            <div class="feedback-bar-bg"><div id="bar-h" class="feedback-fill"></div></div>
+        </div>
+        <div class="slider-group">
+            <div class="slider-label"><span>💧 纯度</span> <span id="badge-s" class="status-badge">调整中</span></div>
+            <input type="range" id="input-s" min="0" max="100" value="50">
+            <div class="feedback-bar-bg"><div id="bar-s" class="feedback-fill"></div></div>
+        </div>
+        <div class="slider-group">
+            <div class="slider-label"><span>☀️ 明度</span> <span id="badge-l" class="status-badge">调整中</span></div>
+            <input type="range" id="input-l" min="0" max="100" value="50">
+            <div class="feedback-bar-bg"><div id="bar-l" class="feedback-fill"></div></div>
+        </div>
     </div>
-    <div class="slider-group">
-      <div class="slider-label"><span>🌈 色相</span> <span id="badge-h" class="status-badge">调整中</span></div>
-      <input type="range" id="input-h" min="0" max="360" value="0">
-      <div class="feedback-bar-bg"><div id="bar-h" class="feedback-fill"></div></div>
-    </div>
-    <div class="slider-group">
-      <div class="slider-label"><span>💧 纯度</span> <span id="badge-s" class="status-badge">调整中</span></div>
-      <input type="range" id="input-s" min="0" max="100" value="50">
-      <div class="feedback-bar-bg"><div id="bar-s" class="feedback-fill"></div></div>
-    </div>
-    <div class="slider-group">
-      <div class="slider-label"><span>☀️ 明度</span> <span id="badge-l" class="status-badge">调整中</span></div>
-      <input type="range" id="input-l" min="0" max="100" value="50">
-      <div class="feedback-bar-bg"><div id="bar-l" class="feedback-fill"></div></div>
-    </div>
-  </div>
 
-  <div id="level3" class="level">
-    <h1>Level 3: 配色大师</h1>
-    <div class="subtitle">寻找完美的“搭档”！</div>
-    <div class="l3-base" id="l3-base"></div>
-    <p id="l3-instruction" style="text-align:center; font-size:1rem; padding:0 20px;">任务：请找出主角的 <span class="highlight">互补色 (180°对立)</span></p>
-    <div class="options-grid" id="options-container"></div>
-  </div>
+    <!-- Level 3 -->
+    <div id="level3" class="level">
+        <h1>Level 3: 配色大师</h1>
+        <div class="subtitle" id="l3-subtitle">寻找完美的“搭档”！</div>
+        <div class="l3-base" id="l3-base"></div>
+        <p id="l3-instruction" style="text-align: center; font-size: 1rem; padding: 0 20px;">任务：请找出主角的 <span class="highlight">互补色 (180°对立)</span></p>
+        <div class="options-grid" id="options-container"></div>
+    </div>
+
+    <!-- Level 4：色环拼图 -->
+    <div id="level4" class="level">
+        <h1>Level 4: 伊登12色相环</h1>
+        
+        <div class="info-box">
+            <span class="highlight">🧩 拼图规则：</span><br>
+            1. 基础的<b>三原色（黄、蓝、红）</b>已为你固定在色环上。<br>
+            2. 请根据“相邻颜色混合”的原理（如黄+红=橙），将下方颜料拖入正确的空圈内。
+        </div>
+        
+        <div class="wheel-area" id="wheel-area">
+            <div class="wheel-center">12色<br>相环</div>
+            <!-- 插槽由JS动态生成 -->
+        </div>
+
+        <div class="palette-area" id="palette-area">
+            <!-- 拖拽块由JS动态生成 -->
+        </div>
+    </div>
+
 </div>
 
+<!-- 弹窗 -->
 <div id="successOverlay" class="overlay">
-  <div class="overlay-icon" id="overlay-icon">🏆</div>
-  <div class="overlay-title" id="overlay-title">完美匹配！</div>
-  <p style="color:#ddd; font-size:1.1rem; margin-bottom:20px; text-align:center; padding:0 20px;" id="successMsg">你掌握了这个知识点。</p>
-  <button class="overlay-btn" id="overlay-btn" type="button">继续下一步</button>
+    <div class="overlay-icon" id="overlay-icon">🏆</div>
+    <div class="overlay-title" id="overlay-title">完美匹配！</div>
+    <p style="color: #ddd; font-size: 1.1rem; margin-bottom: 20px; text-align: center; padding: 0 20px;" id="successMsg">你掌握了这个知识点。</p>
+    <button class="overlay-btn" id="overlay-btn" onclick="goToNextTarget()">继续下一步</button>
 </div>
 
 <script>
-let audioCtx = null;
-let gameStarted = false;
-let nextAction = "";
-
-const startScreen = document.getElementById('startScreen');
-const startBtn = document.getElementById('startBtn');
-const overlayBtn = document.getElementById('overlay-btn');
-
-async function startGame(e){
-  if(e) e.preventDefault();
-  if(gameStarted) return;
-  gameStarted = true;
-  try{
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if(AudioContextClass){
-      audioCtx = new AudioContextClass();
-      if(audioCtx.state === 'suspended'){ await audioCtx.resume(); }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.0001;
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.02);
+    /* ================= 音频引擎 ================= */
+    let audioCtx = null;
+    function startGame() {
+        try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+                audioCtx = new AudioContextClass();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                gain.gain.value = 0; 
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.001);
+            }
+        } catch (e) { console.log("Audio init failed", e); }
+        document.getElementById('startScreen').style.display = 'none';
     }
-  }catch(err){
-    console.log('Audio init failed:', err);
-  }
-  startScreen.style.display = 'none';
-}
 
-function playSound(type){
-  if(!audioCtx) return;
-  if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(()=>{}); }
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  const now = audioCtx.currentTime;
+    function playSound(type) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
 
-  if(type === 'drop'){
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, now);
-    osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
-    gain.gain.setValueAtTime(0.5, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-    osc.start(now); osc.stop(now + 0.1);
-  }else if(type === 'success'){
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523.25, now);
-    osc.frequency.setValueAtTime(659.25, now + 0.1);
-    osc.frequency.setValueAtTime(1046.5, now + 0.2);
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-    osc.start(now); osc.stop(now + 0.6);
-  }else if(type === 'error'){
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, now);
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-    osc.start(now); osc.stop(now + 0.3);
-  }else if(type === 'victory'){
-    osc.type = 'square';
-    const notes = [523.25,659.25,783.99,1046.5];
-    notes.forEach((freq,i)=>osc.frequency.setValueAtTime(freq, now + i * 0.15));
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
-    osc.start(now); osc.stop(now + 1.0);
-  }
-}
-
-function showOverlay(msg, action, isVictory = false){
-  document.getElementById('successMsg').innerText = msg;
-  const overlay = document.getElementById('successOverlay');
-  const title = document.getElementById('overlay-title');
-  const icon = document.getElementById('overlay-icon');
-  const btn = document.getElementById('overlay-btn');
-
-  if(isVictory){
-    overlay.classList.add('victory-bg');
-    title.classList.add('victory-title');
-    title.innerText = "🌟 色彩大师 🌟";
-    icon.innerText = "🎓";
-    btn.innerText = "再玩一次";
-    btn.style.background = "#f1c40f";
-    playSound('victory');
-  }else{
-    overlay.classList.remove('victory-bg');
-    title.classList.remove('victory-title');
-    title.innerText = "完美！";
-    icon.innerText = "🏆";
-    btn.innerText = "继续下一步";
-    btn.style.background = "var(--success)";
-    playSound('success');
-  }
-  overlay.classList.add('show');
-  nextAction = action;
-}
-
-function goToNextTarget(){
-  document.getElementById('successOverlay').classList.remove('show');
-  if(nextAction === "nextL1"){
-    l1CurrentIndex++;
-    if(l1CurrentIndex < l1Targets.length){
-      let nextColor = l1Targets[l1CurrentIndex];
-      let colorHex = nextColor === 'green' ? '#2ecc71' : '#9b59b6';
-      let colorName = nextColor === 'green' ? '绿色' : '紫色';
-      document.getElementById('l1-instruction').innerHTML = `接下来混出 <span class="highlight" style="color:${colorHex}; font-size:1.2rem">${colorName}</span>`;
-      resetCauldron();
-    }else{
-      document.getElementById('level1').classList.remove('active');
-      document.getElementById('level2').classList.add('active');
-      initLevel2();
+        if (type === 'drop') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+            gain.gain.setValueAtTime(0.5, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'success') {
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.1); osc.frequency.setValueAtTime(1046.50, now + 0.2);
+            gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.3, now + 0.05); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+            osc.start(now); osc.stop(now + 0.6);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
+            gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'snap') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'victory') {
+            osc.type = 'square'; const notes =[523.25, 659.25, 783.99, 1046.50, 1318.51];
+            notes.forEach((freq, i) => { osc.frequency.setValueAtTime(freq, now + i * 0.15); });
+            gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.2, now + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+            osc.start(now); osc.stop(now + 1.2);
+        }
     }
-  }else if(nextAction === "nextL2"){
-    document.getElementById('level2').classList.remove('active');
-    document.getElementById('level3').classList.add('active');
-    initLevel3();
-  }else if(nextAction === "nextL3"){
-    l3Stage++;
-    initLevel3();
-  }else if(nextAction === "restart"){
-    location.reload();
-  }
-}
 
-let mixStack = [];
-let l1Targets = ['orange','green','purple'];
-let l1CurrentIndex = 0;
-const cauldron = document.getElementById('cauldron');
+    /* ================= 流程控制 ================= */
+    let nextAction = "";
+    function showOverlay(msg, action, isVictory = false) {
+        document.getElementById('successMsg').innerText = msg;
+        const overlay = document.getElementById('successOverlay');
+        const title = document.getElementById('overlay-title');
+        const icon = document.getElementById('overlay-icon');
+        const btn = document.getElementById('overlay-btn');
 
-function addFlask(color){
-  playSound('drop');
-  if(mixStack.length >= 2 || mixStack.includes(color)) return;
-  mixStack.push(color);
-  if(mixStack.length === 1){
-    let c = mixStack[0];
-    cauldron.style.background = c === 'red' ? '#d63031' : (c === 'yellow' ? '#fdcb6e' : '#0984e3');
-    cauldron.innerText = "➕";
-  }
-  if(mixStack.length === 2){ checkMix(); }
-}
-
-function checkMix(){
-  const sorted = mixStack.slice().sort().join('+');
-  let resultName = '';
-  let resultColor = '';
-  if(sorted === 'red+yellow'){ resultName = 'orange'; resultColor = '#e67e22'; }
-  if(sorted === 'blue+yellow'){ resultName = 'green'; resultColor = '#2ecc71'; }
-  if(sorted === 'blue+red'){ resultName = 'purple'; resultColor = '#9b59b6'; }
-
-  if(resultName === l1Targets[l1CurrentIndex]){
-    cauldron.style.background = resultColor;
-    cauldron.innerText = "✔️";
-    cauldron.classList.remove('bounce');
-    void cauldron.offsetWidth;
-    cauldron.classList.add('bounce');
-    setTimeout(()=>showOverlay("原色混合成功！", "nextL1"), 600);
-  }else{
-    cauldron.innerText = "❌";
-    cauldron.classList.remove('shake');
-    void cauldron.offsetWidth;
-    cauldron.classList.add('shake');
-    playSound('error');
-    setTimeout(resetCauldron, 800);
-  }
-}
-
-function resetCauldron(){
-  mixStack = [];
-  cauldron.style.background = '#111';
-  cauldron.innerText = "准备混合";
-  cauldron.classList.remove('shake','bounce');
-}
-
-let targetH, targetS, targetL;
-let isLevel2Active = false;
-
-function initLevel2(){
-  targetH = Math.floor(Math.random() * 360);
-  targetS = Math.floor(Math.random() * 60) + 40;
-  targetL = Math.floor(Math.random() * 50) + 25;
-  document.getElementById('targetColor').style.backgroundColor = `hsl(${targetH}, ${targetS}%, ${targetL}%)`;
-  document.getElementById('input-h').value = (targetH + 180) % 360;
-  document.getElementById('input-s').value = 10;
-  document.getElementById('input-l').value = 90;
-  document.getElementById('input-h').style.background = 'linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red)';
-  isLevel2Active = true;
-  updateLevel2Colors();
-}
-
-function updateLevel2Colors(){
-  if(!isLevel2Active) return;
-  const h = parseInt(document.getElementById('input-h').value, 10);
-  const s = parseInt(document.getElementById('input-s').value, 10);
-  const l = parseInt(document.getElementById('input-l').value, 10);
-
-  document.getElementById('userColor').style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
-  document.getElementById('input-s').style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
-  document.getElementById('input-l').style.background = `linear-gradient(to right, black, hsl(${h}, ${s}%, 50%), white)`;
-
-  const hMatch = checkRadar('h', h, targetH, 360);
-  const sMatch = checkRadar('s', s, targetS, 100);
-  const lMatch = checkRadar('l', l, targetL, 100);
-
-  if(hMatch && sMatch && lMatch){
-    isLevel2Active = false;
-    document.getElementById('userColor').classList.add('bounce');
-    setTimeout(()=>showOverlay("你的眼睛堪比取色器！", "nextL2"), 500);
-  }
-}
-
-function checkRadar(type, val, target, max){
-  let diff = Math.abs(val - target);
-  if(type === 'h' && diff > 180){ diff = 360 - diff; }
-  const bar = document.getElementById('bar-' + type);
-  const badge = document.getElementById('badge-' + type);
-  const tolerance = type === 'h' ? 12 : 8;
-  let percent = Math.max(5, 100 - (diff / max * 200));
-  bar.style.width = percent + "%";
-
-  if(diff <= tolerance){
-    bar.style.backgroundColor = badge.style.backgroundColor = "var(--success)";
-    badge.style.color = "#000";
-    badge.innerText = "完美";
-    return true;
-  }else if(diff <= tolerance * 3){
-    bar.style.backgroundColor = badge.style.backgroundColor = "var(--warning)";
-    badge.style.color = "#000";
-    badge.innerText = "接近";
-    return false;
-  }else{
-    bar.style.backgroundColor = badge.style.backgroundColor = "var(--error)";
-    badge.style.color = "#fff";
-    badge.innerText = "偏差";
-    return false;
-  }
-}
-
-let l3Stage = 1;
-function initLevel3(){
-  const baseH = Math.floor(Math.random() * 360);
-  document.getElementById('l3-base').style.background = `hsl(${baseH}, 80%, 60%)`;
-  const container = document.getElementById('options-container');
-  const instruction = document.getElementById('l3-instruction');
-  container.innerHTML = "";
-
-  let correctH;
-  let wrongOffsets = [];
-  if(l3Stage === 1){
-    instruction.innerHTML = '任务 1：找出主角的 <span class="highlight">互补色 (180°对立)</span>';
-    correctH = (baseH + 180) % 360;
-    wrongOffsets = [60, 90, 270];
-  }else{
-    instruction.innerHTML = '任务 2：找出主角的 <span class="highlight">类似色 (相近的邻居)</span>';
-    correctH = (baseH + 30) % 360;
-    wrongOffsets = [120, 180, 240];
-  }
-
-  let optionsH = wrongOffsets.map(offset => (baseH + offset) % 360);
-  optionsH.push(correctH);
-  optionsH.sort(() => Math.random() - 0.5);
-
-  optionsH.forEach(h => {
-    let btn = document.createElement('div');
-    btn.className = 'option-btn';
-    btn.style.background = `hsl(${h}, 80%, 60%)`;
-    let isCorrect = (h === correctH);
-    btn.addEventListener('click', () => handleL3Click(btn, isCorrect));
-    btn.addEventListener('touchend', (e) => { e.preventDefault(); handleL3Click(btn, isCorrect); }, { passive:false });
-    container.appendChild(btn);
-  });
-}
-
-function handleL3Click(btn, isCorrect){
-  if(isCorrect){
-    btn.classList.add('bounce');
-    btn.style.borderColor = "var(--success)";
-    btn.style.borderWidth = "5px";
-    if(l3Stage === 1){
-      setTimeout(()=>showOverlay("互补色对比最强烈！", "nextL3"), 500);
-    }else{
-      setTimeout(()=>showOverlay("你已经是色彩大师了！", "restart", true), 500);
+        if(isVictory) {
+            overlay.classList.add('victory-bg'); title.classList.add('victory-title');
+            title.innerText = "🌟 色彩宗师 🌟"; icon.innerText = "🎓"; btn.innerText = "重新开始游戏";
+            btn.style.background = "#f1c40f"; playSound('victory');
+        } else {
+            overlay.classList.remove('victory-bg'); title.classList.remove('victory-title');
+            title.innerText = "完美！"; icon.innerText = "🏆"; btn.innerText = "继续下一步";
+            btn.style.background = "var(--success)"; playSound('success');
+        }
+        overlay.classList.add('show'); nextAction = action;
     }
-  }else{
-    btn.classList.remove('shake');
-    void btn.offsetWidth;
-    btn.classList.add('shake');
-    btn.style.borderColor = "var(--error)";
-    playSound('error');
-  }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  startBtn.addEventListener('click', startGame, { passive:false });
-  startBtn.addEventListener('touchend', startGame, { passive:false });
+    function goToNextTarget() {
+        document.getElementById('successOverlay').classList.remove('show');
+        if (nextAction === "nextL1") {
+            l1CurrentIndex++;
+            if (l1CurrentIndex < l1Targets.length) {
+                let nextColor = l1Targets[l1CurrentIndex];
+                let colorHex = nextColor === 'green' ? '#2ecc71' : '#9b59b6';
+                let colorName = nextColor === 'green' ? '绿色' : '紫色';
+                document.getElementById('l1-instruction').innerHTML = `接下来混出 <span class="highlight" style="color:${colorHex}; font-size:1.2rem">${colorName}</span>`;
+                resetCauldron();
+            } else {
+                document.getElementById('level1').classList.remove('active');
+                document.getElementById('level2').classList.add('active');
+                initLevel2();
+            }
+        } else if (nextAction === "nextL2") {
+            document.getElementById('level2').classList.remove('active');
+            document.getElementById('level3').classList.add('active');
+            initLevel3();
+        } else if (nextAction === "nextL3") {
+            if(l3Stage === 1) {
+                l3Stage++; initLevel3();
+            } else {
+                document.getElementById('level3').classList.remove('active');
+                document.getElementById('level4').classList.add('active');
+                initLevel4();
+            }
+        } else if (nextAction === "restart") {
+            location.reload(); 
+        }
+    }
 
-  overlayBtn.addEventListener('click', goToNextTarget);
-  overlayBtn.addEventListener('touchend', (e) => { e.preventDefault(); goToNextTarget(); }, { passive:false });
+    /* ================= Level 1 ================= */
+    let mixStack =[]; let l1Targets = ['orange', 'green', 'purple']; let l1CurrentIndex = 0;
+    const cauldron = document.getElementById('cauldron');
+    function addFlask(color) {
+        playSound('drop');
+        if (mixStack.length >= 2 || mixStack.includes(color)) return;
+        mixStack.push(color);
+        if (mixStack.length === 1) {
+            cauldron.style.background = mixStack[0] === 'red' ? '#d63031' : (mixStack[0] === 'yellow' ? '#fdcb6e' : '#0984e3');
+            cauldron.innerText = "➕";
+        }
+        if (mixStack.length === 2) checkMix();
+    }
+    function checkMix() {
+        const sorted = mixStack.sort().join('+');
+        let resultName = ''; let resultColor = '';
+        if (sorted === 'red+yellow') { resultName = 'orange'; resultColor = '#e67e22'; }
+        if (sorted === 'blue+yellow') { resultName = 'green'; resultColor = '#2ecc71'; }
+        if (sorted === 'blue+red') { resultName = 'purple'; resultColor = '#9b59b6'; }
 
-  document.getElementById('resetBtn1').addEventListener('click', resetCauldron);
+        if (resultName === l1Targets[l1CurrentIndex]) {
+            cauldron.style.background = resultColor; cauldron.innerText = "✔️"; 
+            cauldron.classList.remove('bounce'); void cauldron.offsetWidth; cauldron.classList.add('bounce');
+            setTimeout(() => { showOverlay("原色混合成功！", "nextL1"); }, 600);
+        } else {
+            cauldron.innerText = "❌"; cauldron.classList.remove('shake'); void cauldron.offsetWidth; cauldron.classList.add('shake');
+            playSound('error'); setTimeout(resetCauldron, 800);
+        }
+    }
+    function resetCauldron() { mixStack =[]; cauldron.style.background = '#111'; cauldron.innerText = "准备混合"; }
 
-  document.querySelectorAll('.flask').forEach(node => {
-    const color = node.dataset.color;
-    node.addEventListener('click', () => addFlask(color));
-    node.addEventListener('touchend', (e) => { e.preventDefault(); addFlask(color); }, { passive:false });
-  });
+    /* ================= Level 2 ================= */
+    let targetH, targetS, targetL; let isLevel2Active = false;
+    function initLevel2() {
+        targetH = Math.floor(Math.random() * 360); targetS = Math.floor(Math.random() * 60) + 40; targetL = Math.floor(Math.random() * 50) + 25; 
+        document.getElementById('targetColor').style.backgroundColor = `hsl(${targetH}, ${targetS}%, ${targetL}%)`;
+        document.getElementById('input-h').value = (targetH + 180) % 360; document.getElementById('input-s').value = 10; document.getElementById('input-l').value = 90;
+        isLevel2Active = true; updateLevel2Colors();
+    }
+    function updateLevel2Colors() {
+        if (!isLevel2Active) return;
+        const h = parseInt(document.getElementById('input-h').value); const s = parseInt(document.getElementById('input-s').value); const l = parseInt(document.getElementById('input-l').value);
+        document.getElementById('userColor').style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+        document.getElementById('input-s').style.background = `linear-gradient(to right, hsl(${h}, 0%, ${l}%), hsl(${h}, 100%, ${l}%))`;
+        document.getElementById('input-l').style.background = `linear-gradient(to right, black, hsl(${h}, ${s}%, 50%), white)`;
 
-  ['input-h','input-s','input-l'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updateLevel2Colors);
-  });
-});
+        if (checkRadar('h', h, targetH, 360) && checkRadar('s', s, targetS, 100) && checkRadar('l', l, targetL, 100)) {
+            isLevel2Active = false; document.getElementById('userColor').classList.add('bounce');
+            setTimeout(() => { showOverlay("你的眼睛堪比取色器！", "nextL2"); }, 500);
+        }
+    }
+    function checkRadar(type, val, target, max) {
+        let diff = Math.abs(val - target);
+        if (type === 'h' && diff > 180) diff = 360 - diff;
+        const bar = document.getElementById('bar-' + type); const badge = document.getElementById('badge-' + type);
+        const tolerance = type === 'h' ? 12 : 8; 
+        let percent = Math.max(5, 100 - (diff / max * 200)); bar.style.width = percent + "%";
+        if (diff <= tolerance) { bar.style.backgroundColor = badge.style.backgroundColor = "var(--success)"; badge.style.color = "#000"; badge.innerText = "完美"; return true; } 
+        else if (diff <= tolerance * 3) { bar.style.backgroundColor = badge.style.backgroundColor = "var(--warning)"; badge.style.color = "#000"; badge.innerText = "接近"; return false; } 
+        else { bar.style.backgroundColor = badge.style.backgroundColor = "var(--error)"; badge.style.color = "#fff"; badge.innerText = "偏差"; return false; }
+    }['input-h', 'input-s', 'input-l'].forEach(id => { document.getElementById(id).addEventListener('input', updateLevel2Colors); });
+
+    /* ================= Level 3 ================= */
+    let l3Stage = 1; 
+    function initLevel3() {
+        const baseH = Math.floor(Math.random() * 360);
+        document.getElementById('l3-base').style.background = `hsl(${baseH}, 80%, 60%)`;
+        const container = document.getElementById('options-container');
+        const instruction = document.getElementById('l3-instruction');
+        container.innerHTML = ""; 
+
+        let correctH; let wrongOffsets =[];
+        if (l3Stage === 1) {
+            instruction.innerHTML = '任务 1：找出主角的 <span class="highlight">互补色 (180°对立)</span>';
+            correctH = (baseH + 180) % 360; wrongOffsets =[60, 90, 270]; 
+        } else {
+            instruction.innerHTML = '任务 2：找出主角的 <span class="highlight">类似色 (相近的邻居)</span>';
+            correctH = (baseH + 30) % 360; wrongOffsets =[120, 180, 240]; 
+        }
+
+        let optionsH = wrongOffsets.map(offset => (baseH + offset) % 360);
+        optionsH.push(correctH); optionsH.sort(() => Math.random() - 0.5);
+
+        optionsH.forEach(h => {
+            let btn = document.createElement('div'); btn.className = 'option-btn'; btn.style.background = `hsl(${h}, 80%, 60%)`;
+            let isCorrect = (h === correctH); btn.onclick = () => handleL3Click(btn, isCorrect);
+            container.appendChild(btn);
+        });
+    }
+    function handleL3Click(btn, isCorrect) {
+        if (isCorrect) {
+            btn.classList.add('bounce'); btn.style.borderColor = "var(--success)"; btn.style.borderWidth = "5px";
+            if (l3Stage === 1) { setTimeout(() => { showOverlay("互补色对比最强烈！", "nextL3"); }, 500); } 
+            else { setTimeout(() => { showOverlay("类似色非常和谐！进入终极挑战！", "nextL3"); }, 500); }
+        } else {
+            btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+            btn.style.borderColor = "var(--error)"; playSound('error');
+        }
+    }
+
+    /* ================= Level 4：色环拼图 ================= */
+    // 标准伊登12色相环 (0为正上方黄，顺时针排列)
+    const colors12 =[
+        { id: 0, hsl: 'hsl(60, 100%, 50%)', name: '黄' },       // 12点钟
+        { id: 1, hsl: 'hsl(90, 100%, 45%)', name: '黄绿' },
+        { id: 2, hsl: 'hsl(120, 100%, 40%)', name: '绿' },
+        { id: 3, hsl: 'hsl(160, 100%, 40%)', name: '蓝绿' },
+        { id: 4, hsl: 'hsl(220, 100%, 50%)', name: '蓝' },       // 4点钟
+        { id: 5, hsl: 'hsl(260, 100%, 50%)', name: '蓝紫' },
+        { id: 6, hsl: 'hsl(280, 100%, 50%)', name: '紫' },
+        { id: 7, hsl: 'hsl(320, 100%, 50%)', name: '红紫' },
+        { id: 8, hsl: 'hsl(360, 100%, 50%)', name: '红' },       // 8点钟
+        { id: 9, hsl: 'hsl(15, 100%, 50%)', name: '红橙' },
+        { id: 10, hsl: 'hsl(30, 100%, 50%)', name: '橙' },
+        { id: 11, hsl: 'hsl(45, 100%, 50%)', name: '黄橙' }
+    ];
+    
+    const primaryIds = [0, 4, 8]; // 黄、蓝、红的固定索引
+    let placedCount = 0;
+    
+    function initLevel4() {
+        const wheel = document.getElementById('wheel-area');
+        const palette = document.getElementById('palette-area');
+        wheel.innerHTML = '<div class="wheel-center">12色<br>相环</div>';
+        palette.innerHTML = '';
+        placedCount = 3; // 初始已经固定了3个
+
+        const radius = 110; 
+        const centerX = 140; 
+        const centerY = 140; 
+
+        // 1. 生成12个插槽
+        for (let i = 0; i < 12; i++) {
+            let angle = (i * 30 - 90) * (Math.PI / 180); // -90度让索引0在正上方
+            let x = centerX + radius * Math.cos(angle);
+            let y = centerY + radius * Math.sin(angle);
+
+            let slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.style.left = `${x}px`;
+            slot.style.top = `${y}px`;
+            slot.dataset.colorId = i;
+            
+            // 固定三原色
+            if (primaryIds.includes(i)) {
+                slot.style.background = colors12[i].hsl;
+                slot.classList.add('fixed');
+            }
+            
+            wheel.appendChild(slot);
+        }
+
+        // 2. 生成剩余9个拖拽块 (打乱顺序)
+        let remainingColors = colors12.filter(c => !primaryIds.includes(c.id));
+        let shuffledColors = remainingColors.sort(() => Math.random() - 0.5);
+        
+        shuffledColors.forEach(color => {
+            let piece = document.createElement('div');
+            piece.className = 'drag-piece';
+            piece.style.background = color.hsl;
+            piece.dataset.colorId = color.id;
+            
+            piece.addEventListener('touchstart', dragStart, {passive: false});
+            piece.addEventListener('touchmove', dragMove, {passive: false});
+            piece.addEventListener('touchend', dragEnd);
+            piece.addEventListener('mousedown', dragStart);
+            
+            palette.appendChild(piece);
+        });
+
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+    }
+
+    // --- 拖拽物理引擎 ---
+    let activePiece = null;
+    let currentX = 0, currentY = 0, initialX = 0, initialY = 0;
+    let xOffset = 0, yOffset = 0;
+
+    function dragStart(e) {
+        if (e.target.classList.contains('placed')) return;
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+        if (e.target.classList.contains('drag-piece')) {
+            activePiece = e.target;
+            activePiece.classList.add('dragging');
+            playSound('drop');
+            if(!activePiece.dataset.homeX) {
+                const rect = activePiece.getBoundingClientRect();
+                activePiece.dataset.homeX = rect.left;
+                activePiece.dataset.homeY = rect.top;
+            }
+        }
+    }
+
+    function dragMove(e) {
+        if (!activePiece) return;
+        e.preventDefault(); 
+        
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX; yOffset = currentY;
+        activePiece.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.3)`;
+        checkHover(e);
+    }
+
+    function dragEnd(e) {
+        if (!activePiece) return;
+        
+        let droppedOnSlot = evaluateDrop(e);
+        
+        if (droppedOnSlot) {
+            activePiece.classList.remove('dragging');
+            activePiece.classList.add('placed');
+            activePiece.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1)`;
+            playSound('snap');
+            placedCount++;
+            
+            if(placedCount === 12) {
+                setTimeout(() => { showOverlay("太震撼了！你成功还原了伊登12色相环！", "restart", true); }, 800);
+            }
+        } else {
+            activePiece.classList.remove('dragging');
+            activePiece.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            activePiece.style.transform = `translate3d(0px, 0px, 0) scale(1)`;
+            playSound('error');
+            
+            setTimeout(() => { 
+                if(activePiece) activePiece.style.transition = 'none'; 
+                xOffset = 0; yOffset = 0;
+            }, 300);
+        }
+        
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('highlight'));
+        activePiece = null;
+        initialX = 0; initialY = 0; currentX = 0; currentY = 0; xOffset = 0; yOffset = 0;
+    }
+
+    function getPointerPos(e) {
+        if (e.type.includes('touch')) { return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY }; }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function checkHover(e) {
+        const pos = getPointerPos(e);
+        const slots = document.querySelectorAll('.slot:not(.fixed)');
+        slots.forEach(slot => {
+            const rect = slot.getBoundingClientRect();
+            if (pos.x > rect.left && pos.x < rect.right && pos.y > rect.top && pos.y < rect.bottom) {
+                slot.classList.add('highlight');
+            } else {
+                slot.classList.remove('highlight');
+            }
+        });
+    }
+
+    function evaluateDrop(e) {
+        const pos = getPointerPos(e);
+        const slots = document.querySelectorAll('.slot:not(.fixed)');
+        for (let slot of slots) {
+            const rect = slot.getBoundingClientRect();
+            if (pos.x > rect.left && pos.x < rect.right && pos.y > rect.top && pos.y < rect.bottom) {
+                if (slot.dataset.colorId === activePiece.dataset.colorId) {
+                    const pieceRect = activePiece.getBoundingClientRect();
+                    const targetX = currentX + (rect.left - pieceRect.left) + (rect.width - pieceRect.width)/2;
+                    const targetY = currentY + (rect.top - pieceRect.top) + (rect.height - pieceRect.height)/2;
+                    currentX = targetX; currentY = targetY;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 </script>
+
 </body>
 </html>
